@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist de Tesis · Instituto Podemos</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1800ad;
+    --blue-dark: #10007a;
+    --blue-light: #2a0fd4;
+    --lime: #c1ff72;
+    --lime-dark: #a8f050;
+    --gray: #444343;
+    --white: #ffffff;
+    --bg: #0a0060;
+    --card-bg: rgba(255,255,255,0.04);
+    --card-border: rgba(255,255,255,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(193,255,114,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(193,255,114,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow blobs */
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.25;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .blob-1 { width: 500px; height: 500px; background: var(--blue-light); top: -100px; right: -100px; }
+  .blob-2 { width: 400px; height: 400px; background: var(--lime); top: 60%; left: -150px; opacity: 0.1; }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+  }
+
+  /* Header */
+  .header { margin-bottom: 3rem; }
+
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .brand-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--lime);
+  }
+  .brand-name {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--lime);
+  }
+
+  .main-title {
+    font-size: clamp(2.2rem, 6vw, 3.5rem);
+    font-weight: 900;
+    line-height: 1.0;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .main-title span {
+    color: var(--lime);
+  }
+
+  .main-sub {
+    font-size: 14px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.55);
+    margin-top: 12px;
+    line-height: 1.6;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  /* Overall progress */
+  .overall-progress {
+    background: var(--card-bg);
+    border: 0.5px solid var(--card-border);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .op-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .op-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+  .op-count {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--lime);
+  }
+  .op-count span { font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.4); }
+  .op-bar-wrap {
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .op-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue-light), var(--lime));
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* Phases */
+  .phases { display: flex; flex-direction: column; gap: 1rem; }
+
+  .phase {
+    border-radius: 16px;
+    border: 0.5px solid var(--card-border);
+    background: var(--card-bg);
+    overflow: hidden;
+    animation: fadeUp 0.6s ease both;
+    transition: border-color 0.2s;
+  }
+  .phase:hover { border-color: rgba(255,255,255,0.2); }
+
+  .phase-header {
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .phase-num {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    letter-spacing: 0;
+  }
+
+  .phase-info { flex: 1; }
+  .phase-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--white);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .phase-mini-bar {
+    height: 2px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 1px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .phase-mini-fill {
+    height: 100%;
+    border-radius: 1px;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  .phase-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .phase-pct {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    min-width: 32px;
+    text-align: right;
+  }
+  .phase-toggle {
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.3);
+    transition: transform 0.25s ease, color 0.2s;
+    font-size: 10px;
+  }
+  .phase.open .phase-toggle { transform: rotate(180deg); color: var(--lime); }
+
+  /* Task list */
+  .task-list {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  .phase.open .task-list { max-height: 600px; }
+
+  .task-divider {
+    height: 0.5px;
+    background: rgba(255,255,255,0.07);
+    margin: 0 1.25rem;
+  }
+
+  .task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 11px 1.25rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .task-item:hover { background: rgba(255,255,255,0.04); }
+  .task-item:active { background: rgba(255,255,255,0.07); }
+
+  .cb {
+    width: 18px; height: 18px;
+    border-radius: 5px;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+    position: relative;
+    overflow: hidden;
+  }
+  .cb::after {
+    content: '';
+    width: 9px; height: 5px;
+    border-left: 2px solid var(--bg);
+    border-bottom: 2px solid var(--bg);
+    transform: rotate(-45deg) translateY(-1px) scale(0);
+    transition: transform 0.2s cubic-bezier(0.4,0,0.2,1);
+  }
+  .cb.checked {
+    border-color: var(--lime);
+    background: var(--lime);
+  }
+  .cb.checked::after { transform: rotate(-45deg) translateY(-1px) scale(1); }
+
+  .task-text {
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.5;
+    transition: color 0.2s, text-decoration 0.2s;
+  }
+  .task-text.done {
+    color: rgba(255,255,255,0.25);
+    text-decoration: line-through;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 3rem;
+    padding: 1.5rem;
+    background: var(--card-bg);
+    border: 0.5px solid var(--card-border);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    animation: fadeUp 0.6s 0.5s ease both;
+  }
+  .footer-left { font-size: 12px; color: rgba(255,255,255,0.35); }
+  .footer-right {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--lime);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .footer-right::after { content: '→'; }
+
+  /* Celebration */
+  .celebration {
+    display: none;
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    background: rgba(193,255,114,0.06);
+    border: 0.5px solid rgba(193,255,114,0.3);
+    border-radius: 16px;
+    animation: fadeUp 0.4s ease both;
+  }
+  .celebration.show { display: block; }
+  .celebration-title {
+    font-size: 18px; font-weight: 700;
+    color: var(--lime);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .celebration-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 6px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Phase colors */
+  .p0 .phase-num { background: rgba(167,139,250,0.15); color: #a78bfa; }
+  .p0 .phase-mini-fill { background: #a78bfa; }
+  .p1 .phase-num { background: rgba(96,165,250,0.15); color: #60a5fa; }
+  .p1 .phase-mini-fill { background: #60a5fa; }
+  .p2 .phase-num { background: rgba(52,211,153,0.15); color: #34d399; }
+  .p2 .phase-mini-fill { background: #34d399; }
+  .p3 .phase-num { background: rgba(244,114,182,0.15); color: #f472b6; }
+  .p3 .phase-mini-fill { background: #f472b6; }
+  .p4 .phase-num { background: rgba(193,255,114,0.15); color: var(--lime); }
+  .p4 .phase-mini-fill { background: var(--lime); }
+
+  @media (max-width: 480px) {
+    .main-title { font-size: 2rem; }
+    .container { padding: 2rem 1rem 4rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<div class="container">
+
+  <div class="header">
+    <div class="brand-row">
+      <div class="brand-dot"></div>
+      <span class="brand-name">Instituto Podemos · Recurso gratuito</span>
+    </div>
+    <h1 class="main-title">Checklist<br>de <span>Tesis_</span></h1>
+    <p class="main-sub">Tildá cada tarea a medida que avanzás.<br>Una fase a la vez. Sin culpa.</p>
+  </div>
+
+  <div class="overall-progress">
+    <div class="op-row">
+      <span class="op-label">Tu progreso total</span>
+      <span class="op-count" id="op-count">0 <span>/ 28 tareas</span></span>
+    </div>
+    <div class="op-bar-wrap">
+      <div class="op-bar" id="op-bar"></div>
+    </div>
+  </div>
+
+  <div class="phases" id="phases"></div>
+
+  <div class="celebration" id="celebration">
+    <div class="celebration-title">¡Fase completada!</div>
+    <div class="celebration-sub">Cada tarea tildada es un paso real. Seguís avanzando.</div>
+  </div>
+
+  <div class="footer">
+    <span class="footer-left">Bianca · @instituto.podemos</span>
+    <a href="https://instagram.com/instituto.podemos" class="footer-right">¿Necesitás acompañamiento? Escribime</a>
+  </div>
+
+</div>
+
+<script>
+const phases = [
+  { label: "Formulación del proyecto", tasks: [
+    "Definir el tema de investigación",
+    "Formular el problema y la pregunta de investigación",
+    "Redactar los objetivos general y específicos",
+    "Elegir y justificar la metodología",
+    "Revisar la normativa de tu facultad",
+    "Acordar el tema con tu director/a"
+  ]},
+  { label: "Marco teórico", tasks: [
+    "Buscar antecedentes académicos relevantes",
+    "Definir los conceptos centrales",
+    "Redactar el estado del arte",
+    "Organizar la bibliografía en un gestor de citas",
+    "Entregar borrador de marco a tu director/a"
+  ]},
+  { label: "Trabajo de campo o corpus", tasks: [
+    "Diseñar los instrumentos de recolección",
+    "Obtener consentimientos si corresponde",
+    "Realizar el trabajo de campo",
+    "Organizar y sistematizar la información",
+    "Hacer una primera lectura analítica del material"
+  ]},
+  { label: "Escritura", tasks: [
+    "Armar el índice provisional",
+    "Escribir cada capítulo por separado",
+    "Redactar resultados y análisis",
+    "Redactar conclusiones y reflexión final",
+    "Revisar coherencia entre objetivos y conclusiones",
+    "Escribir la introducción"
+  ]},
+  { label: "Correcciones y entrega", tasks: [
+    "Revisar formato según normativa institucional",
+    "Corregir observaciones de tu director/a",
+    "Revisar ortografía, puntuación y citas",
+    "Preparar resumen o abstract",
+    "Entregar versión final",
+    "Preparar la defensa si corresponde"
+  ]}
+];
+
+const totalTasks = phases.reduce((a, p) => a + p.tasks.length, 0);
+let checked = {};
+
+function updateOverall() {
+  const done = Object.values(checked).filter(Boolean).length;
+  const pct = Math.round((done / totalTasks) * 100);
+  document.getElementById('op-bar').style.width = pct + '%';
+  document.getElementById('op-count').innerHTML = done + ' <span>/ ' + totalTasks + ' tareas</span>';
+}
+
+function updatePhase(pi) {
+  const phase = phases[pi];
+  const done = phase.tasks.filter((_, ti) => checked[pi+'-'+ti]).length;
+  const total = phase.tasks.length;
+  const pct = Math.round((done / total) * 100);
+  const fill = document.getElementById('fill-'+pi);
+  const pctEl = document.getElementById('pct-'+pi);
+  if (fill) fill.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = pct > 0 ? pct + '%' : '';
+  if (done === total) {
+    const cel = document.getElementById('celebration');
+    cel.classList.add('show');
+    setTimeout(() => cel.classList.remove('show'), 3000);
+  }
+}
+
+const container = document.getElementById('phases');
+
+phases.forEach((phase, pi) => {
+  phase.tasks.forEach((_, ti) => { checked[pi+'-'+ti] = false; });
+
+  const card = document.createElement('div');
+  card.className = 'phase p' + pi + (pi === 0 ? ' open' : '');
+  card.style.animationDelay = (0.3 + pi * 0.07) + 's';
+
+  card.innerHTML = `
+    <div class="phase-header">
+      <div class="phase-num">${String(pi+1).padStart(2,'0')}</div>
+      <div class="phase-info">
+        <div class="phase-title">${phase.label}</div>
+        <div class="phase-mini-bar"><div class="phase-mini-fill" id="fill-${pi}"></div></div>
+      </div>
+      <div class="phase-right">
+        <span class="phase-pct" id="pct-${pi}"></span>
+        <div class="phase-toggle">▼</div>
+      </div>
+    </div>
+    <div class="task-list" id="tl-${pi}">
+      <div class="task-divider"></div>
+      ${phase.tasks.map((task, ti) => `
+        <div class="task-item" data-pi="${pi}" data-ti="${ti}">
+          <div class="cb" id="cb-${pi}-${ti}"></div>
+          <div class="task-text" id="tt-${pi}-${ti}">${task}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  card.querySelector('.phase-header').addEventListener('click', () => {
+    card.classList.toggle('open');
+  });
+
+  card.querySelectorAll('.task-item').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      const pi2 = parseInt(item.dataset.pi);
+      const ti2 = parseInt(item.dataset.ti);
+      const key = pi2+'-'+ti2;
+      checked[key] = !checked[key];
+      document.getElementById('cb-'+pi2+'-'+ti2).classList.toggle('checked', checked[key]);
+      document.getElementById('tt-'+pi2+'-'+ti2).classList.toggle('done', checked[key]);
+      updatePhase(pi2);
+      updateOverall();
+    });
+  });
+
+  container.appendChild(card);
+});
+
+updateOverall();
+</script>
+</body>
+</html>
