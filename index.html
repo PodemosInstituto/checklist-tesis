@@ -358,7 +358,14 @@
 </style>
 </head>
 <body>
-
+<div id="email-gate" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(24,0,173,0.95); z-index:9999; display:none; flex-direction:column; align-items:center; justify-content:center; color:white; font-family: 'Poppins', sans-serif; text-align:center; padding:20px;">
+    <img src="tu-logo-aqui.png" alt="Instituto Podemos" style="width:150px; margin-bottom:20px;">
+    <h2 style="color:#C1FF72;">¡Hola! Antes de empezar...</h2>
+    <p>Ingresa tu email para acceder a la checklist gratuita y recibir recursos exclusivos.</p>
+    <input type="email" id="user-email" placeholder="tu@email.com" style="padding:12px; border-radius:5px; border:none; width:280px; margin-bottom:15px; font-size:16px;">
+    <button onclick="enviarDatos()" style="background:#C1FF72; color:#1800AD; border:none; padding:12px 30px; border-radius:5px; font-weight:bold; cursor:pointer; font-size:16px;">Acceder ahora</button>
+    <p id="error-msg" style="color:#ff4d4d; display:none; margin-top:10px;">Por favor, ingresa un email válido.</p>
+</div>
 <div class="blob blob-1"></div>
 <div class="blob blob-2"></div>
 
@@ -519,6 +526,45 @@ phases.forEach((phase, pi) => {
 });
 
 updateOverall();
+</script> <script>
+    // 1. CONFIGURACIÓN (Aquí pegas tu URL del Paso 6)
+    const URL_DESTINO = 'https://script.google.com/macros/s/AKfycbzkRspGGnJJViGOVLes1IEdMY60IuUHa4qj84UM9NP_QuEt55ji2f7iQHcbNCG_-tvt/exec';
+
+    // 2. FUNCIÓN PARA MOSTRAR EL MODAL
+    // localStorage: Es una pequeña memoria del navegador que recuerda si el usuario ya entró.
+    window.onload = function() {
+        if (!localStorage.getItem('checklist_acceso')) {
+            document.getElementById('email-gate').style.display = 'flex';
+        }
+    };
+
+    // 3. FUNCIÓN PARA ENVIAR LOS DATOS
+    function enviarDatos() {
+        const email = document.getElementById('user-email').value;
+        const errorMsg = document.getElementById('error-msg');
+        
+        // Validación simple de email
+        if (!email.includes('@')) {
+            errorMsg.style.display = 'block';
+            return;
+        }
+
+        // Enviamos el dato a tu planilla o servicio externo
+        fetch(URL_DESTINO, {
+            method: 'POST',
+            mode: 'no-cors', // Esto evita problemas de seguridad del navegador
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, fecha: new Date().toLocaleString() })
+        }).then(() => {
+            // Guardamos en la memoria del navegador (localStorage) para no volver a pedirlo
+            localStorage.setItem('checklist_acceso', 'true');
+            // Ocultamos el modal
+            document.getElementById('email-gate').style.display = 'none';
+        }).catch(() => {
+            // Si algo falla, lo dejamos pasar para no arruinar la experiencia del usuario
+            document.getElementById('email-gate').style.display = 'none';
+        });
+    }
 </script>
 </body>
 </html>
